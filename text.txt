@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>متجر codrl - النسخة الملكية</title>
+    <style>
+        :root {
+            --primary: #fbbf24; /* ذهبي بريميوم */
+            --primary-dark: #b45309; 
+            --bg: #020617; /* كحلي ملكي */
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text: #f8fafc;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+            background-image: radial-gradient(circle at top left, #0f172a, #020617);
+        }
+
+        /* أنميشن الظهور */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate { animation: fadeIn 0.6s ease-out forwards; }
+
+        /* Navbar */
+        nav {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 8%; background: rgba(2, 6, 23, 0.95);
+            backdrop-filter: blur(15px); position: sticky; top: 0; z-index: 1000;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .logo {
+            font-size: 28px; font-weight: 900;
+            background: linear-gradient(to bottom, #fff, var(--primary));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            cursor: pointer; letter-spacing: 2px;
+        }
+
+        .cart-trigger { cursor: pointer; position: relative; font-size: 1.8rem; transition: 0.3s; }
+        .cart-badge { background: var(--primary); color: #000; font-size: 0.75rem; font-weight: bold; padding: 2px 7px; border-radius: 50%; position: absolute; top: -5px; right: -10px; box-shadow: 0 0 10px var(--primary); }
+
+        /* Hero */
+        .hero { text-align: center; padding: 100px 8%; border-bottom: 1px solid rgba(251, 191, 36, 0.1); }
+        .hero h1 { font-size: 3.5rem; margin-bottom: 15px; color: var(--primary); text-shadow: 0 0 20px rgba(251, 191, 36, 0.3); }
+        .hero p { color: #94a3b8; font-size: 1.2rem; }
+
+        /* Sections */
+        section { padding: 50px 8%; }
+        .section-title { text-align: center; margin-bottom: 40px; font-size: 2.2rem; color: var(--primary); border-bottom: 2px solid var(--primary); display: table; margin: 0 auto 40px; padding-bottom: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 25px; }
+        
+        /* Cards */
+        .card {
+            background: var(--card-bg); backdrop-filter: blur(10px);
+            border-radius: 20px; padding: 30px; text-align: center;
+            border: 1px solid rgba(251, 191, 36, 0.1);
+            transition: 0.4s ease; cursor: pointer;
+        }
+        .card:hover { transform: translateY(-10px); border-color: var(--primary); box-shadow: 0 10px 30px rgba(251, 191, 36, 0.15); }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #000; padding: 14px; border: none; border-radius: 12px;
+            font-weight: 900; cursor: pointer; width: 100%; margin-top: 15px; transition: 0.3s;
+        }
+        .btn:hover { filter: brightness(1.2); box-shadow: 0 0 15px var(--primary); }
+
+        .back-btn { background: #1e293b; color: #fff; border: 1px solid var(--primary); padding: 10px 20px; border-radius: 10px; cursor: pointer; margin-bottom: 25px; display: none; }
+
+        /* Modal السلة مع زر ثابت */
+        .modal {
+            display: none; position: fixed; z-index: 2000; top: 0; left: 0;
+            width: 100%; height: 100%; background: rgba(0,0,0,0.85);
+            align-items: center; justify-content: center; backdrop-filter: blur(8px);
+        }
+        .modal-content {
+            background: #0f172a; border-radius: 25px;
+            width: 90%; max-width: 420px; border: 1px solid var(--primary);
+            display: flex; flex-direction: column; max-height: 80vh;
+        }
+        .modal-header { padding: 20px; border-bottom: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; }
+        #cartItemsContainer { padding: 20px; overflow-y: auto; flex-grow: 1; }
+        .modal-footer { padding: 20px; border-top: 1px solid #1e293b; background: #020617; border-radius: 0 0 25px 25px; }
+
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #1e293b; }
+        .trash-btn { cursor: pointer; font-size: 1.3rem; transition: 0.2s; }
+        .trash-btn:hover { color: #ef4444; transform: scale(1.2); }
+
+        /* رفع الصور */
+        .upload-area { border: 2px dashed #444; padding: 25px; margin: 15px 0; text-align: center; border-radius: 15px; cursor: pointer; transition: 0.3s; }
+        .upload-area:hover { border-color: var(--primary); background: rgba(251, 191, 36, 0.05); }
+        #imagePreview { width: 100%; max-height: 180px; object-fit: contain; display: none; border-radius: 10px; margin: 0 auto 10px; }
+
+        /* سياسة المتجر */
+        .policy-box { background: rgba(251, 191, 36, 0.03); padding: 20px; border-radius: 15px; border-right: 4px solid var(--primary); margin-bottom: 15px; text-align: right; }
+        .review-card { background: var(--card-bg); padding: 20px; border-radius: 15px; border-bottom: 3px solid var(--primary); text-align: center; }
+
+        /* Toast */
+        #toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background: var(--primary); color: #000; padding: 12px 25px; border-radius: 50px; font-weight: bold; transition: 0.5s; z-index: 5000; }
+        #toast.show { bottom: 30px; }
+
+        /* تيك توك العائم */
+        .tiktok-float { position: fixed; bottom: 30px; left: 30px; background: #fff; color: #000; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; text-decoration: none; z-index: 3000; box-shadow: 0 0 20px rgba(251, 191, 36, 0.4); }
+
+        .sprite-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+        .sprite-card { background: rgba(255,255,255,0.02); border: 1px solid #1e293b; border-radius: 15px; padding: 12px; text-align: center; font-size: 0.85rem; }
+
+        .submenu { display: none; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo" onclick="location.reload()">codrl</div>
+        <div class="cart-trigger" onclick="openModal('cartModal')">🛒 <span class="cart-badge" id="cartBadge">0</span></div>
+    </nav>
+
+    <div id="toast"> ✅ تمت الإضافة! </div>
+
+    <header class="hero animate">
+        <h1>متجر codrl يرحب بك 👋</h1>
+        <p>التميز في الخدمات الرقمية.. اطلب الآن عبر التيك توك!</p>
+    </header>
+
+    <section id="products-section" class="animate">
+        <button id="backBtn" class="back-btn" onclick="goBack()">⬅ العودة للخلف</button>
+        <h2 id="sectionTitle" class="section-title">الأقسام المتاحة</h2>
+
+        <!-- القائمة الرئيسية -->
+        <div id="main-menu" class="grid">
+            <div class="card" onclick="showMenu('fortnite-submenu', 'قسم فورت نايت')"><span>🏆</span><h3>فورت نايت</h3><button class="btn">تصفح</button></div>
+            <div class="card" onclick="showMenu('roblox-submenu', 'قسم روبلوكس')"><span>🧱</span><h3>روبلوكس</h3><button class="btn">تصفح</button></div>
+            <div class="card" onclick="showMenu('gta-submenu', 'قسم قراند')"><span>🚗</span><h3>قراند</h3><button class="btn">تصفح</button></div>
+        </div>
+
+        <!-- فورت نايت -->
+        <div id="fortnite-submenu" class="grid submenu">
+            <div class="card" onclick="showMenu('sprites-gallery', 'معرض السبرايتات')"><span>✨</span><h3>سبرايتات</h3><button class="btn">عرض الكل</button></div>
+            <div class="card" onclick="addToCart('ماب السرقة (فورت)', 5)"><span>🕵️‍♂️</span><h3>ماب السرقة</h3><button class="btn">شراء 5$</button></div>
+            <div class="card" onclick="addToCart('ماب النطة (فورت)', 5)"><span>🏃‍♂️</span><h3>ماب النطة</h3><button class="btn">شراء 5$</button></div>
+        </div>
+
+        <!-- روبلوكس -->
+        <div id="roblox-submenu" class="grid submenu">
+            <div class="card" onclick="addToCart('ماب السرقة (روبلوكس)', 5)"><span>💰</span><h3>ماب السرقة</h3><button class="btn">شراء 5$</button></div>
+            <div class="card" onclick="addToCart('ماب الكيبورد (روبلوكس)', 5)"><span>⌨️</span><h3>ماب الكيبورد</h3><button class="btn">شراء 5$</button></div>
+        </div>
+
+        <!-- قراند -->
+        <div id="gta-submenu" class="grid submenu">
+            <div class="card" onclick="addToCart('كايو بريكو (قراند)', 5)"><span>🏝️</span><h3>كايو بريكو</h3><button class="btn">شراء 5$</button></div>
+        </div>
+
+        <!-- السبرايتات -->
+        <div id="sprites-gallery" class="sprite-grid submenu">
+            <script>
+                const spriteNames = ["Zero Point", "Earth", "Fire", "Grim", "Water", "Batman", "Air", "Aura", "Boss", "Demon", "Dream", "Duck", "Fishy", "Ghost", "King", "Llama", "Peely", "Punk", "Seven", "Striker", "Burnt Peanut", "Ironmouse", "John Wick", "Pollo", "Vini Jr."];
+                spriteNames.forEach(name => { document.write(`<div class="sprite-card"><b>${name}</b><br><span style="color:var(--primary)">2.5$</span><br><button class="btn" style="padding:6px; font-size:0.7rem; margin-top:5px;" onclick="addToCart('${name}', 2.5)">🛒 أضف</button></div>`); });
+            </script>
+        </div>
+    </section>
+
+    <!-- الخدمات -->
+    <section id="services" style="background: rgba(251, 191, 36, 0.02);"><h2 class="section-title">خدماتنا</h2><div class="grid">
+        <div class="card" onclick="openModal('lvlModal')"><span>⚡</span><h3>تلفيل الحساب</h3><p>0.10$ لكل لفل</p></div>
+        <div class="card" onclick="openModal('taskModal')"><span>🎯</span><h3>فعل المهام</h3><p>5.00$ للمهمة</p></div>
+    </div></section>
+
+    <!-- السياسات والتقييمات -->
+    <section class="animate">
+        <h2 class="section-title">سياسة الموقع والتقييمات</h2>
+        <div class="grid">
+            <div class="policy-box"><h4>⚠️ تنبيه مهم:</h4><p>بمجرد البدء في عملية تنفيذ طلبك من قبل فريقنا، <b>لا يمكن استرجاع المبلغ</b>.</p></div>
+            <div class="policy-box"><h4>🕒 الاسترجاع:</h4><p>يحق لك الاسترجاع خلال 24 ساعة فقط في حال لم يبدأ العمل على حسابك.</p></div>
+        </div>
+        <div class="grid" style="margin-top: 30px;">
+            <div class="review-card">⭐⭐⭐⭐⭐<p>"سرعة خيالية في تنفيذ المهام، ثقة 100%."</p><small>- عبدالله</small></div>
+            <div class="review-card">⭐⭐⭐⭐⭐<p>"أفضل متجر تعاملت معه في السبرايتات."</p><small>- سلطان</small></div>
+            <div class="review-card">⭐⭐⭐⭐⭐<p>"تعامل راقي جداً والأسعار معقولة."</p><small>- فهد</small></div>
+        </div>
+    </section>
+
+    <!-- Modal السلة -->
+    <div id="cartModal" class="modal">
+        <div class="modal-content animate">
+            <div class="modal-header"><h3>سلة المشتريات 🛒</h3><span onclick="closeModal('cartModal')" style="cursor:pointer; font-size:1.5rem;">✕</span></div>
+            <div id="cartItemsContainer"></div>
+            <div class="modal-footer">
+                <div style="display:flex; justify-content:space-between; margin-bottom:15px; font-weight:bold;"><span>الإجمالي:</span><span id="cartTotalPrice" style="color:var(--primary)">0.00 $</span></div>
+                <button class="btn" onclick="checkout()" style="background:white; color:black; margin:0;">نسخ الطلب وفتح تيك توك 📱</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal المهام -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content" style="padding:30px;">
+            <h3 style="text-align:center; margin-top:0;">رفع مهمة (5$)</h3>
+            <div class="upload-area" onclick="document.getElementById('taskFile').click()">
+                <div id="uploadPlaceholder">📸 اضغط لرفع الصورة</div>
+                <img id="imagePreview" src="#">
+            </div>
+            <input type="file" id="taskFile" accept="image/*" style="display:none" onchange="previewImage(this)">
+            <button class="btn" onclick="addServiceToCart('تنفيذ مهمة', 5)">إضافة للسلة 🛒</button>
+            <button class="btn" style="background:#1e293b; color:#fff; margin-top:10px;" onclick="closeModal('taskModal')">إلغاء</button>
+        </div>
+    </div>
+
+    <!-- Modal التلفيل -->
+    <div id="lvlModal" class="modal"><div class="modal-content" style="padding:30px;"><h3 style="text-align:center">حاسبة التلفيل</h3><input type="number" id="lvlInput" placeholder="أدخل اللفل" oninput="updateLvl(this.value)" style="width:100%; padding:15px; margin:15px 0; border-radius:12px; background:#000; color:#fff; border:1px solid var(--primary); text-align:center; font-size:1.5rem;"><p style="text-align:center">السعر: <span id="lvlRes" style="color:var(--primary)">0.00</span> $</p><button class="btn" onclick="addLvlToCart()">إضافة للسلة 🛒</button></div></div>
+
+    <a href="https://www.tiktok.com/@codrl2" class="tiktok-float" target="_blank">♪</a>
+
+    <script>
+        let cart = []; let navStack = ['main-menu']; const TIKTOK_URL = "https://www.tiktok.com/@codrl2";
+
+        function previewImage(input) {
+            const preview = document.getElementById('imagePreview');
+            const placeholder = document.getElementById('uploadPlaceholder');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) { preview.src = e.target.result; preview.style.display = 'block'; placeholder.style.display = 'none'; };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function addToCart(name, price) { cart.push({ name, price }); updateCartUI(); showToast(`تمت إضافة ${name}`); }
+        function addServiceToCart(n, p) { addToCart(n, p); closeModal('taskModal'); document.getElementById('imagePreview').style.display='none'; document.getElementById('uploadPlaceholder').style.display='block'; }
+        function removeFromCart(i) { cart.splice(i, 1); updateCartUI(); }
+
+        function updateCartUI() {
+            const container = document.getElementById('cartItemsContainer'); const badge = document.getElementById('cartBadge'); const totalDisplay = document.getElementById('cartTotalPrice');
+            badge.innerText = cart.length;
+            if (cart.length === 0) { container.innerHTML = '<p style="text-align:center; color:#666;">سلتك فارغة</p>'; totalDisplay.innerText = "0.00 $"; return; }
+            container.innerHTML = cart.map((item, i) => `<div class="cart-item"><span>${item.name}</span><div>${item.price.toFixed(2)} $ <span class="trash-btn" onclick="removeFromCart(${i})">🗑️</span></div></div>`).join('');
+            totalDisplay.innerText = cart.reduce((sum, item) => sum + item.price, 0).toFixed(2) + " $";
+        }
+
+        function checkout() {
+            if (cart.length === 0) return;
+            let msg = "طلب جديد من متجر codrl:\n";
+            cart.forEach((item, i) => msg += `${i+1}. ${item.name} ($${item.price.toFixed(2)})\n`);
+            msg += `\nإجمالي الحساب: $${document.getElementById('cartTotalPrice').innerText}`;
+            navigator.clipboard.writeText(msg).then(() => { alert("✅ تم نسخ طلبك! الصقه في الخاص بتيك توك."); window.open(TIKTOK_URL, '_blank'); });
+        }
+
+        function showMenu(id, title) { hideAll(); document.getElementById(id).style.display = 'grid'; document.getElementById('backBtn').style.display = 'block'; document.getElementById('sectionTitle').innerText = title; navStack.push(id); }
+        function goBack() { if (navStack.length > 1) { navStack.pop(); const prev = navStack[navStack.length - 1]; hideAll(); document.getElementById(prev).style.display = 'grid'; if (prev === 'main-menu') { document.getElementById('backBtn').style.display = 'none'; document.getElementById('sectionTitle').innerText = 'الأقسام المتاحة'; } } }
+        function hideAll() { ['main-menu', 'fortnite-submenu', 'roblox-submenu', 'gta-submenu', 'sprites-gallery'].forEach(id => document.getElementById(id).style.display = 'none'); }
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function updateLvl(v) { document.getElementById('lvlRes').innerText = (v * 0.1).toFixed(2); }
+        function addLvlToCart() { const v = document.getElementById('lvlInput').value; if(v > 0) { addToCart(`تلفيل ${v} لفل`, v * 0.1); closeModal('lvlModal'); } }
+        function showToast(txt) { const t = document.getElementById('toast'); t.innerText = `✅ ${txt}`; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
+        window.onclick = function(e) { if(e.target.className === 'modal') { closeModal('cartModal'); closeModal('lvlModal'); closeModal('taskModal'); } }
+    </script>
+</body>
+</html>
